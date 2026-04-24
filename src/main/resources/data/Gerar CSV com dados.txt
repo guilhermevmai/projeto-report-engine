@@ -1,0 +1,1 @@
+1..1000000 | ForEach-Object { "$_,user_$_,$(($_ * 10)),2026-04-24,ATIVO" } | Out-File -FilePath "$HOME\Desktop\arquivoDadosGigante.csv" -Encoding utf8
