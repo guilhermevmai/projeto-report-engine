@@ -1,5 +1,7 @@
 package com.report_engine.api.controller;
 
+import com.report_engine.api.model.UsersReport;
+import com.report_engine.api.model.enums.UserStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
@@ -10,8 +12,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -26,17 +30,43 @@ public class ReportController {
     @PostMapping("/upload-correto")
     public String uploadArquivoCorreto(@RequestParam("file") MultipartFile file) throws Exception {
         int contadorLinhas = 0;
-
+        String line;
+        String split = ",";
+        StringBuilder mensagem = new StringBuilder();
+        int linhasComErro = 0;
         try {
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-            while (reader.readLine() != null) {
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(split);
+
+                UsersReport usersReport = transformLineToObject(data);
+                System.out.println(contadorLinhas);
                 contadorLinhas++;
             }
-            return String.format("Arquivo processado. Total de linhas: %d", contadorLinhas);
         } catch (Exception e) {
-            throw new Exception("Ocorreu um erro inesperado", e);
+            if (e instanceof ArrayIndexOutOfBoundsException) {
+                linhasComErro++;
+            }
         }
+        mensagem.append(String.format("Arquivo processado. Total de linhas: %d", contadorLinhas));
+        if (linhasComErro > 0) {
+            mensagem.append(String.format("\nAlgumas linhas não foram processadas. Total de linhas fora do padrão: %d", linhasComErro));
+        }
+        return mensagem.toString();
+    }
+
+    private UsersReport transformLineToObject(String[] data) {
+
+        UsersReport usersReport = new UsersReport(
+                Integer.parseInt(data[0]),
+                data[1],
+                Long.parseLong(data[2]),
+                LocalDate.parse(data[3]),
+                UserStatus.valueOf(data[4].toUpperCase())
+                );
+
+        return usersReport;
     }
 
     @PostMapping("/upload-errado")
