@@ -2,6 +2,7 @@ package com.report_engine.api.service;
 
 import com.report_engine.api.model.UsersReport;
 import com.report_engine.api.model.enums.UserStatus;
+import com.report_engine.api.model.enums.benchmark.ReadFilesStrategies;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +18,19 @@ import java.util.List;
 @Service
 public class ReportService {
 
-    public String readWithAllLines(MultipartFile file) throws IOException {
+
+    public String processarArquivo(MultipartFile file, ReadFilesStrategies chosedStrategy) throws IOException {
+        switch (chosedStrategy) {
+            case ALL_LINES :
+                return readWithAllLines(file);
+            case STREAMING:
+                return readWithBufferedReader(file);
+            default:
+                return String.format("None strategies found by the following name: %s", chosedStrategy.toString());
+        }
+    }
+
+    private String readWithAllLines(MultipartFile file) throws IOException {
         // ERRO 1: Carrega o arquivo inteiro para um array de bytes na RAM.
         // Se o arquivo tiver 200MB, 200MB serão alocados na Heap imediatamente.
         byte[] bytes = file.getBytes();
@@ -36,27 +49,25 @@ public class ReportService {
         return mensagem;
     }
 
-    public String readWithBufferedReader(MultipartFile file) {
+    private String readWithBufferedReader(MultipartFile file) throws IOException {
         int contadorLinhas = 0;
         String line;
         String split = ",";
         StringBuilder mensagem = new StringBuilder();
         int linhasComErro = 0;
-        try {
+
             BufferedReader reader = new BufferedReader(
                     new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
             while ((line = reader.readLine()) != null) {
                 String[] data = line.split(split);
-
-                UsersReport usersReport = transformLineToObject(data);
-                System.out.println(contadorLinhas);
-                contadorLinhas++;
+                try {
+                    UsersReport usersReport = transformLineToObject(data);
+                    System.out.println(contadorLinhas);
+                    contadorLinhas++;
+                } catch (Exception e) {
+                    linhasComErro++;
+                }
             }
-        } catch (Exception e) {
-            if (e instanceof ArrayIndexOutOfBoundsException) {
-                linhasComErro++;
-            }
-        }
         mensagem.append(String.format("Arquivo processado. Total de linhas: %d", contadorLinhas));
         if (linhasComErro > 0) {
             mensagem.append(String.format("\nAlgumas linhas não foram processadas. Total de linhas fora do padrão: %d", linhasComErro));

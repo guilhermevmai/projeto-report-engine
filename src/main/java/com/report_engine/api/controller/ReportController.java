@@ -2,6 +2,7 @@ package com.report_engine.api.controller;
 
 import com.report_engine.api.model.UsersReport;
 import com.report_engine.api.model.enums.UserStatus;
+import com.report_engine.api.model.enums.benchmark.ReadFilesStrategies;
 import com.report_engine.api.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -32,15 +33,9 @@ public class ReportController {
         return ResponseEntity.ok(mensagem).getBody();
     }
 
-    @PostMapping("/upload-correto")
-    public String uploadArquivoCorreto(@RequestParam("file") MultipartFile file) throws Exception {
-        return ResponseEntity.ok(reportService.readWithBufferedReader(file)).getBody();
-    }
-
-
-    @PostMapping("/upload-errado")
-    public String uploadArquivoErrado(@RequestParam("file") MultipartFile file) throws IOException {
-
-        return ResponseEntity.ok(reportService.readWithAllLines(file)).getBody();
+    @PostMapping("/upload")
+    public String uploadArquivoCorreto(@RequestParam("file") MultipartFile file, @
+            RequestParam("strategy") ReadFilesStrategies chosedStrategy) throws Exception {
+        return ResponseEntity.ok(reportService.processarArquivo(file, chosedStrategy)).getBody();
     }
 }
