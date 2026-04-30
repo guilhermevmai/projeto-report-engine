@@ -1,15 +1,12 @@
 package com.report_engine.api.model;
 
 import com.report_engine.api.model.enums.benchmark.ReadFilesStrategies;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
 
 @State(Scope.Benchmark)
 public class ArquivoBenchmark {
 
-
+    @Param({"ALL_LINES, STREAM"})
     private String strategy;
 
     private ReadFilesStrategies enumStrategy;
@@ -23,7 +20,7 @@ public class ArquivoBenchmark {
     public long executarBenchmark() {
 
         switch (enumStrategy) {
-            case STREAMING :
+            case STREAM :
                 return 1L;
             case ALL_LINES:
                 return 2L;

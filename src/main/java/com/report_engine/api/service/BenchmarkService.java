@@ -2,6 +2,7 @@ package com.report_engine.api.service;
 
 import com.report_engine.api.model.ArquivoBenchmark;
 import com.report_engine.api.model.enums.benchmark.ReadFilesStrategies;
+import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -15,15 +16,24 @@ import java.util.concurrent.CompletableFuture;
 public class BenchmarkService {
 
     @Async
-    public CompletableFuture<String> rodarBenchmark(ReadFilesStrategies chosedStrategy) throws RunnerException {
-        Options opt = new OptionsBuilder()
-                .include(ArquivoBenchmark.class.getSimpleName())
-                .param("strategy", String.valueOf(chosedStrategy))
-                .forks(1)
-                .build();
+    public CompletableFuture<String> rodarBenchmark(ReadFilesStrategies chosedStrategy) {
+        try {
+            Options opt = new OptionsBuilder()
+                    .include(ArquivoBenchmark.class.getSimpleName())
+                    .param("strategy", String.valueOf(chosedStrategy))
+                    .forks(1)
+                    .warmupIterations(2)
+                    .measurementIterations(3)
+                    .resultFormat(ResultFormatType.JSON)
+                    .result("result-jhm.json")
+                    .build();
 
-        new Runner(opt).run();
 
-        return CompletableFuture.completedFuture("Benchmark concluído para: " + chosedStrategy);
+            new Runner(opt).run();
+            return CompletableFuture.completedFuture("Benchmark concluído para: " + chosedStrategy);
+        } catch (RunnerException e) {
+            return CompletableFuture.failedFuture(e);
+        }
+
     }
 }

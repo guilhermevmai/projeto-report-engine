@@ -1,6 +1,6 @@
 package com.report_engine.api.exceptions;
 
-import com.report_engine.api.dto.ExceptionResponseDto;
+import com.report_engine.api.dto.response.ExceptionResponseDto;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

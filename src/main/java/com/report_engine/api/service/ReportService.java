@@ -23,7 +23,7 @@ public class ReportService {
         switch (chosedStrategy) {
             case ALL_LINES :
                 return readWithAllLines(file);
-            case STREAMING:
+            case STREAM:
                 return readWithBufferedReader(file);
             default:
                 return String.format("None strategies found by the following name: %s", chosedStrategy.toString());
