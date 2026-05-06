@@ -1,5 +1,6 @@
 package com.report_engine.api.service;
 
+import com.report_engine.api.dto.response.UserReportDtoResponse;
 import com.report_engine.api.model.UsersReport;
 import com.report_engine.api.model.enums.UserStatus;
 import com.report_engine.api.model.enums.benchmark.ReadFilesStrategies;
@@ -19,18 +20,7 @@ import java.util.List;
 public class ReportService {
 
 
-    public String processarArquivo(MultipartFile file, ReadFilesStrategies chosedStrategy) throws IOException {
-        switch (chosedStrategy) {
-            case ALL_LINES :
-                return readWithAllLines(file);
-            case STREAM:
-                return readWithBufferedReader(file);
-            default:
-                return String.format("None strategies found by the following name: %s", chosedStrategy.toString());
-        }
-    }
-
-    private String readWithAllLines(MultipartFile file) throws IOException {
+    public UserReportDtoResponse readWithAllLines(MultipartFile file) throws IOException {
         // ERRO 1: Carrega o arquivo inteiro para um array de bytes na RAM.
         // Se o arquivo tiver 200MB, 200MB serão alocados na Heap imediatamente.
         byte[] bytes = file.getBytes();
@@ -44,35 +34,35 @@ public class ReportService {
         // Se o arquivo tiver 1 milhão de linhas, você criou 1 milhão de objetos na Heap.
         List<String> linhas = Arrays.asList(conteudo.split("\n"));
 
-        String mensagem = "Arquivo processado. Total de linhas: " + linhas.size();
+        UserReportDtoResponse response = new UserReportDtoResponse((long) linhas.size(), (long) linhas.size(), 0L);
 
-        return mensagem;
+        return response;
     }
 
-    private String readWithBufferedReader(MultipartFile file) throws IOException {
-        int contadorLinhas = 0;
+    public UserReportDtoResponse readWithBufferedReader(MultipartFile file) throws IOException {
+        Long contadorLinhas = 0L;
+        Long linhasSucesso = 0L;
+        Long linhasComErro = 0L;
         String line;
         String split = ",";
         StringBuilder mensagem = new StringBuilder();
-        int linhasComErro = 0;
 
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-            while ((line = reader.readLine()) != null) {
-                String[] data = line.split(split);
-                try {
-                    UsersReport usersReport = transformLineToObject(data);
-                    System.out.println(contadorLinhas);
-                    contadorLinhas++;
-                } catch (Exception e) {
-                    linhasComErro++;
-                }
+
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+        while ((line = reader.readLine()) != null) {
+            contadorLinhas++;
+            String[] data = line.split(split);
+            try {
+                UsersReport usersReport = transformLineToObject(data);
+                linhasSucesso++;
+            } catch (Exception e) {
+                linhasComErro++;
             }
-        mensagem.append(String.format("Arquivo processado. Total de linhas: %d", contadorLinhas));
-        if (linhasComErro > 0) {
-            mensagem.append(String.format("\nAlgumas linhas não foram processadas. Total de linhas fora do padrão: %d", linhasComErro));
         }
-        return mensagem.toString();
+
+        UserReportDtoResponse response = new UserReportDtoResponse(contadorLinhas, linhasSucesso, linhasComErro);
+        return response;
     }
 
     private UsersReport transformLineToObject(String[] data) {
