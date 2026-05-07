@@ -11,18 +11,16 @@ import java.io.IOException;
 public enum ReadFilesStrategies {
     ALL_LINES {
         @Override
-        public ApiResponse processFile(ReportService service, MultipartFile file) throws IOException {
-            String message = "Arquivo processado lendo todas as linhas.";
-            return new SucessResponse<UserReportDtoResponse>(message, service.readWithAllLines(file));
+        public UserReportDtoResponse processFile(ReportService service, MultipartFile file) throws IOException {
+            return service.readWithAllLines(file);
         }
     },
     STREAM {
         @Override
-        public ApiResponse processFile(ReportService service, MultipartFile file) throws IOException {
-            String message = "Arquivo processado com bufferedReader.";
-            return new SucessResponse<UserReportDtoResponse>(message,service.readWithBufferedReader(file));
+        public UserReportDtoResponse processFile(ReportService service, MultipartFile file) throws IOException {
+            return service.readWithBufferedReader(file);
         }
     };
 
-    public abstract ApiResponse processFile(ReportService reportService, MultipartFile file) throws IOException;
+    public abstract UserReportDtoResponse processFile(ReportService reportService, MultipartFile file) throws IOException;
 }

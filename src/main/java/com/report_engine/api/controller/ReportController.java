@@ -1,6 +1,7 @@
 package com.report_engine.api.controller;
 
 import com.report_engine.api.dto.response.ApiResponse;
+import com.report_engine.api.dto.response.SucessResponse;
 import com.report_engine.api.dto.response.UserReportDtoResponse;
 import com.report_engine.api.model.enums.ReadFilesStrategies;
 import com.report_engine.api.service.ReportService;
@@ -26,6 +27,9 @@ public class ReportController {
     @PostMapping("/upload")
     public ResponseEntity<ApiResponse> uploadArquivoCorreto(@RequestParam("file") MultipartFile file, @
             RequestParam("strategy") ReadFilesStrategies chosedStrategy) throws Exception {
-        return ResponseEntity.ok(chosedStrategy.processFile(reportService, file));
+        return ResponseEntity.ok(
+                new SucessResponse<>
+                        (String.format("File processed using the strategy: %s", chosedStrategy.toString()),
+                        chosedStrategy.processFile(reportService, file)));
     }
 }
