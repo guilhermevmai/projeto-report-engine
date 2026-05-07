@@ -1,6 +1,6 @@
 package com.report_engine.api.service;
 
-import com.report_engine.api.model.enums.benchmark.ReadFilesStrategies;
+import com.report_engine.api.model.enums.ReadFilesStrategies;
 import org.openjdk.jmh.annotations.*;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;

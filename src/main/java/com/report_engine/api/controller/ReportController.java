@@ -1,7 +1,8 @@
 package com.report_engine.api.controller;
 
+import com.report_engine.api.dto.response.ApiResponse;
 import com.report_engine.api.dto.response.UserReportDtoResponse;
-import com.report_engine.api.model.enums.benchmark.ReadFilesStrategies;
+import com.report_engine.api.model.enums.ReadFilesStrategies;
 import com.report_engine.api.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class ReportController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<UserReportDtoResponse> uploadArquivoCorreto(@RequestParam("file") MultipartFile file, @
+    public ResponseEntity<ApiResponse> uploadArquivoCorreto(@RequestParam("file") MultipartFile file, @
             RequestParam("strategy") ReadFilesStrategies chosedStrategy) throws Exception {
         return ResponseEntity.ok(chosedStrategy.processFile(reportService, file));
     }

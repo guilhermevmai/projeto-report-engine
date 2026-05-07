@@ -1,10 +1,9 @@
 package com.report_engine.api.service;
 
 import com.report_engine.api.dto.response.UserReportDtoResponse;
+import com.report_engine.api.exceptions.GenericException;
 import com.report_engine.api.model.UsersReport;
 import com.report_engine.api.model.enums.UserStatus;
-import com.report_engine.api.model.enums.benchmark.ReadFilesStrategies;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,45 +19,51 @@ import java.util.List;
 public class ReportService {
 
 
-    public UserReportDtoResponse readWithAllLines(MultipartFile file) throws IOException {
-        // ERRO 1: Carrega o arquivo inteiro para um array de bytes na RAM.
-        // Se o arquivo tiver 200MB, 200MB serão alocados na Heap imediatamente.
-        byte[] bytes = file.getBytes();
+    public UserReportDtoResponse readWithAllLines(MultipartFile file) {
+        try {
+            // ERRO 1: Carrega o arquivo inteiro para um array de bytes na RAM.
+            // Se o arquivo tiver 200MB, 200MB serão alocados na Heap imediatamente.
+            byte[] bytes = file.getBytes();
 
-        // ERRO 2: Converte o arquivo inteiro em uma String.
-        // Ocupa ainda mais memória (já que String em Java tem overhead).
-        String conteudo = new String(bytes);
+            // ERRO 2: Converte o arquivo inteiro em uma String.
+            // Ocupa ainda mais memória (já que String em Java tem overhead).
+            String conteudo = new String(bytes);
 
-        // ERRO 3: Divide a String em uma lista de linhas.
-        // Isso cria um objeto para CADA linha do arquivo.
-        // Se o arquivo tiver 1 milhão de linhas, você criou 1 milhão de objetos na Heap.
-        List<String> linhas = Arrays.asList(conteudo.split("\n"));
+            // ERRO 3: Divide a String em uma lista de linhas.
+            // Isso cria um objeto para CADA linha do arquivo.
+            // Se o arquivo tiver 1 milhão de linhas, você criou 1 milhão de objetos na Heap.
+            List<String> linhas = Arrays.asList(conteudo.split("\n"));
 
-        UserReportDtoResponse response = new UserReportDtoResponse((long) linhas.size(), (long) linhas.size(), 0L);
+            UserReportDtoResponse response = new UserReportDtoResponse((long) linhas.size(), (long) linhas.size(), 0L);
 
-        return response;
+            return response;
+        } catch (Exception e) {
+            throw new GenericException(e.getCause());
+        }
     }
 
-    public UserReportDtoResponse readWithBufferedReader(MultipartFile file) throws IOException {
+    public UserReportDtoResponse readWithBufferedReader(MultipartFile file) {
         Long contadorLinhas = 0L;
         Long linhasSucesso = 0L;
         Long linhasComErro = 0L;
         String line;
         String split = ",";
-        StringBuilder mensagem = new StringBuilder();
 
-
-        BufferedReader reader = new BufferedReader(
-                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-        while ((line = reader.readLine()) != null) {
-            contadorLinhas++;
-            String[] data = line.split(split);
-            try {
-                UsersReport usersReport = transformLineToObject(data);
-                linhasSucesso++;
-            } catch (Exception e) {
-                linhasComErro++;
+        try {
+            BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+            while ((line = reader.readLine()) != null) {
+                contadorLinhas++;
+                String[] data = line.split(split);
+                try {
+                    UsersReport usersReport = transformLineToObject(data);
+                    linhasSucesso++;
+                } catch (Exception e) {
+                    linhasComErro++;
+                }
             }
+        } catch (IOException e) {
+            throw new GenericException("An error occured when trying to read the file.", e);
         }
 
         UserReportDtoResponse response = new UserReportDtoResponse(contadorLinhas, linhasSucesso, linhasComErro);

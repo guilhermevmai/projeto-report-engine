@@ -1,18 +1,14 @@
 package com.report_engine.api.service;
 
-import com.report_engine.api.model.enums.benchmark.ReadFilesStrategies;
+import com.report_engine.api.model.enums.ReadFilesStrategies;
 import lombok.RequiredArgsConstructor;
-import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.results.format.ResultFormatType;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 @Service

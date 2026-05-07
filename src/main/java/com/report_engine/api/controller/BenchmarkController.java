@@ -1,12 +1,10 @@
 package com.report_engine.api.controller;
 
-import com.report_engine.api.model.enums.benchmark.ReadFilesStrategies;
+import com.report_engine.api.model.enums.ReadFilesStrategies;
 import com.report_engine.api.service.BenchmarkService;
-import com.report_engine.api.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/benchmarks")
