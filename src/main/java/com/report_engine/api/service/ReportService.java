@@ -1,5 +1,9 @@
 package com.report_engine.api.service;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.report_engine.api.dto.response.UserReportDtoResponse;
 import com.report_engine.api.exceptions.GenericException;
 import com.report_engine.api.model.UsersReport;
@@ -9,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
@@ -46,19 +51,24 @@ public class ReportService {
         Long contadorLinhas = 0L;
         Long linhasSucesso = 0L;
         Long linhasComErro = 0L;
-        String line;
-        String split = ",";
 
-        try {
-            BufferedReader reader = new BufferedReader(
-                    new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
-            while ((line = reader.readLine()) != null) {
+        CsvMapper mapper = new CsvMapper();
+        mapper.registerModule(new JavaTimeModule());
+        CsvSchema schema = mapper.schemaFor(UsersReport.class).withoutHeader();
+
+        try (InputStream inputStream = file.getInputStream()) {
+            MappingIterator<UsersReport> mappingIterator = mapper
+                    .readerFor(UsersReport.class)
+                    .with(schema)
+                    .readValues(inputStream);
+
+            while (mappingIterator.hasNext()) {
                 contadorLinhas++;
-                String[] data = line.split(split);
                 try {
-                    UsersReport usersReport = transformLineToObject(data);
+                    UsersReport usersReport = mappingIterator.next();
                     linhasSucesso++;
                 } catch (Exception e) {
+                    e.printStackTrace();
                     linhasComErro++;
                 }
             }

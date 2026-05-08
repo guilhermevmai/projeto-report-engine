@@ -1,6 +1,8 @@
 package com.report_engine.api.exceptions;
 
+import com.report_engine.api.dto.response.ApiResponse;
 import com.report_engine.api.dto.response.ErrorResponse;
+import com.report_engine.api.factory.ResponseFactory;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,39 +18,30 @@ public class GlobalControllerExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGlobalError (Throwable e) {
         String message = "An error has occured.";
         e.printStackTrace();
-        ErrorResponse response = new ErrorResponse(
-                message,
-                HttpStatus.INTERNAL_SERVER_ERROR.value()
-        );
 
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(ResponseFactory.error(message, HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(GenericException.class)
     public ResponseEntity<ErrorResponse> handleGenericExcpetion (RuntimeException e) {
-        ErrorResponse response = new ErrorResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value());
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(ResponseFactory.error(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ConversionFailedException.class)
     public ResponseEntity<ErrorResponse> handleConflict (RuntimeException e) {
-        ErrorResponse response = new ErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ResponseFactory.error(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
-        String message = String.format("None strategies found by the following name: %s", e.getValue());
-        ErrorResponse response = new ErrorResponse(message, HttpStatus.BAD_REQUEST.value());
+        String message = String.format("None strategies found by the following name: %s", e.getValue().toString().toUpperCase());
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ResponseFactory.error(message, HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponse> handleMissingParam(MissingServletRequestParameterException e) {
         String message = String.format("the parameter '%s' is required", e.getParameterName());
-        ErrorResponse response = new ErrorResponse(message, HttpStatus.BAD_REQUEST.value());
-        return new ResponseEntity<>(response,
-                HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ResponseFactory.error(message, HttpStatus.BAD_REQUEST.value()),HttpStatus.BAD_REQUEST);
     }
 }
