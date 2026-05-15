@@ -1,7 +1,5 @@
 package com.report_engine.api.model.enums;
 
-import com.report_engine.api.dto.response.ApiResponse;
-import com.report_engine.api.dto.response.SucessResponse;
 import com.report_engine.api.dto.response.UserReportDtoResponse;
 import com.report_engine.api.service.ReportService;
 import org.springframework.web.multipart.MultipartFile;

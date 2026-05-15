@@ -1,7 +1,6 @@
 package com.report_engine.api.exceptions;
 
-import com.report_engine.api.dto.response.ApiResponse;
-import com.report_engine.api.dto.response.ErrorResponse;
+import com.report_engine.api.dto.response.api_responses.ErrorResponse;
 import com.report_engine.api.factory.ResponseFactory;
 import org.springframework.core.convert.ConversionFailedException;
 import org.springframework.http.HttpStatus;
@@ -10,6 +9,8 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+
+import java.util.Optional;
 
 @RestControllerAdvice
 public class GlobalControllerExceptionHandler {
@@ -24,7 +25,8 @@ public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(GenericException.class)
     public ResponseEntity<ErrorResponse> handleGenericExcpetion (RuntimeException e) {
-        return new ResponseEntity<>(ResponseFactory.error(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
+        String message = Optional.ofNullable(e.getMessage()).orElse("An error has occured.");
+        return new ResponseEntity<>(ResponseFactory.error(message, HttpStatus.INTERNAL_SERVER_ERROR.value()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ConversionFailedException.class)

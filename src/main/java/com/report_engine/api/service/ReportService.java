@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class ReportService {
             // Se o arquivo tiver 1 milhão de linhas, você criou 1 milhão de objetos na Heap.
             List<String> linhas = Arrays.asList(conteudo.split("\n"));
 
-            UserReportDtoResponse response = new UserReportDtoResponse((long) linhas.size(), (long) linhas.size(), 0L);
+            UserReportDtoResponse response = new UserReportDtoResponse((long) linhas.size(), (long) linhas.size(), 0L, false, null);
 
             return response;
         } catch (Exception e) {
@@ -51,6 +52,7 @@ public class ReportService {
         Long contadorLinhas = 0L;
         Long linhasSucesso = 0L;
         Long linhasComErro = 0L;
+        List<String> reasons = new ArrayList<>();
 
         CsvMapper mapper = new CsvMapper();
         mapper.registerModule(new JavaTimeModule());
@@ -70,26 +72,14 @@ public class ReportService {
                 } catch (Exception e) {
                     e.printStackTrace();
                     linhasComErro++;
+                    reasons.add(e.getMessage());
                 }
             }
         } catch (IOException e) {
             throw new GenericException("An error occured when trying to read the file.", e);
         }
-
-        UserReportDtoResponse response = new UserReportDtoResponse(contadorLinhas, linhasSucesso, linhasComErro);
+        boolean isWarning = linhasComErro > 1;
+        UserReportDtoResponse response = new UserReportDtoResponse(contadorLinhas, linhasSucesso, linhasComErro, isWarning, reasons);
         return response;
-    }
-
-    private UsersReport transformLineToObject(String[] data) {
-
-        UsersReport usersReport = new UsersReport(
-                Integer.parseInt(data[0]),
-                data[1],
-                Long.parseLong(data[2]),
-                LocalDate.parse(data[3]),
-                UserStatus.valueOf(data[4].toUpperCase())
-        );
-
-        return usersReport;
     }
 }
