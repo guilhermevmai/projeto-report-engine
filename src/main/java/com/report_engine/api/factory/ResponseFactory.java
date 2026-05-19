@@ -1,10 +1,9 @@
 package com.report_engine.api.factory;
 
-import com.report_engine.api.dto.response.api_responses.ApiResponse;
-import com.report_engine.api.dto.response.api_responses.ErrorResponse;
-import com.report_engine.api.dto.response.api_responses.SucessResponse;
-import com.report_engine.api.dto.response.api_responses.WarningResponse;
+import com.report_engine.api.dto.response.api_responses.*;
 import com.report_engine.api.dto.response.bases.BaseResponseContracts;
+
+import java.time.Instant;
 
 public class ResponseFactory {
 
@@ -19,6 +18,11 @@ public class ResponseFactory {
         }
 
         return new SucessResponse<>("SUCCESS", customMessage, data);
+    }
+
+    public static AsyncResponse async(BaseResponseContracts data,
+                                      String customMessage, String taskId) {
+        return new AsyncResponse("PROCESSING", customMessage, taskId, Instant.now());
     }
 
     public static ErrorResponse error(String message, int errorCode) {

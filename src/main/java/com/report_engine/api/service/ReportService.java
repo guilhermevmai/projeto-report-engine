@@ -25,7 +25,7 @@ import java.util.List;
 public class ReportService {
 
 
-    public UserReportDtoResponse readWithAllLines(MultipartFile file) {
+    public String readWithAllLines(MultipartFile file) {
         try {
             // ERRO 1: Carrega o arquivo inteiro para um array de bytes na RAM.
             // Se o arquivo tiver 200MB, 200MB serão alocados na Heap imediatamente.
@@ -42,13 +42,18 @@ public class ReportService {
 
             UserReportDtoResponse response = new UserReportDtoResponse((long) linhas.size(), (long) linhas.size(), 0L, false, null);
 
-            return response;
+            return "Foi";
         } catch (Exception e) {
             throw new GenericException(e.getCause());
         }
     }
 
-    public UserReportDtoResponse readWithBufferedReader(MultipartFile file) {
+    public String processWithStreaming(MultipartFile file) {
+
+        return null;
+    }
+
+    public UserReportDtoResponse processFileWithBufferedReader(MultipartFile file) {
         Long contadorLinhas = 0L;
         Long linhasSucesso = 0L;
         Long linhasComErro = 0L;

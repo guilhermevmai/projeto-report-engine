@@ -10,6 +10,7 @@ public record UserReportDtoResponse(
         Long successCount,
         Long errorCount,
 
+
         @JsonIgnore
         boolean warning,
 

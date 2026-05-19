@@ -15,10 +15,10 @@ public enum ReadFilesStrategies {
     },
     STREAM {
         @Override
-        public UserReportDtoResponse processFile(ReportService service, MultipartFile file) throws IOException {
-            return service.readWithBufferedReader(file);
+        public String processFile(ReportService service, MultipartFile file) throws IOException {
+            return service.processWithStreaming(file);
         }
     };
 
-    public abstract UserReportDtoResponse processFile(ReportService reportService, MultipartFile file) throws IOException;
+    public abstract String processFile(ReportService reportService, MultipartFile file) throws IOException;
 }

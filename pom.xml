@@ -134,6 +134,30 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>3.5.0</version>
+				<executions>
+					<execution>
+						<id>run-ai</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<!-- Usamos o node ou npx diretamente, eliminando a dependência de bash/powershell -->
+							<executable>npx</executable>
+							<arguments>
+								<argument>better-clawd</argument>
+							</arguments>
+							<!-- Injeta automaticamente o arquivo .env no ambiente antes de rodar o comando -->
+							<environmentVariables>
+								<ENV_FILE>.env</ENV_FILE>
+							</environmentVariables>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 

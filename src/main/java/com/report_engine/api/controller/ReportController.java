@@ -24,9 +24,11 @@ public class ReportController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<ApiResponse> uploadArquivoCorreto(@RequestBody MultipartFile file, @
+    public ResponseEntity<ApiResponse> uploadArquivoCorreto(@RequestParam("file") MultipartFile file, @
             RequestParam("strategy") ReadFilesStrategies chosedStrategy) throws Exception {
         String message = String.format("File processed using the strategy: %s", chosedStrategy.toString());
+
+
 
         return ResponseEntity.ok(ResponseFactory.success(chosedStrategy.processFile(reportService, file), message));
     }
